@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            overflow: hidden;
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+            background: hsl(0, 0%, 95%);
+            font-family: 'Pretendard-Regular';
+            font-weight: 600;
+        }
+
+        @font-face {
+            font-family: 'Pretendard-Regular';
+            src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        .text {
+        	position: fixed;
+        	bottom: 2vh;
+        	left: 2vw;
+			color: #b9b9b9;
+			font-size: 7vh;
+			text-align: left;
+		}
+
+        .pop {
+        	position: fixed;
+        	bottom: -8vh;
+            width: auto; /* 이미지 너비 */
+            height: 57vh; /* 비율 유지 */
+        }
+
+        .fish, .oil, .bbas {
+	      position: absolute;
+	      width: auto;
+	      height: 20vh; /* 비율 유지 */
+	      opacity: 1; /* 초기 투명도 */
+          transition: opacity 1s ease; /* 페이드 아웃 애니메이션 */
+	    }
+
+	    .fish { top: 10vh; left: 40vw; }
+	    .oil { top: 25vh; left: 20vw; }
+	    .bbas { top: 25vh; left: 65vw; }
+
+	    .cloche {
+	      position: absolute;
+	      width: auto;
+	      height: 25vh;
+	      transition: top 1s ease-in-out, opacity 1s ease-in-out; /* 애니메이션 추가 */
+	      opacity: 0;
+	      visibility: hidden; /* 요소를 숨김 */
+	      top: -10vh; /* 초기 위치 설정 */
+	    }
+
+	    .cloche.visible {
+	      opacity: 1;
+	      visibility: visible; /* 요소를 보이게 함 */
+	    }
+
+	    .button {
+	    	position: fixed;
+	    	left: 45vw;
+	    	top: 40vh;
+            width: auto;
+            height: 7vh;
+            aspect-ratio: 22 / 7;
+            font-size: 2.5vh; /* 원래 22px -> 1.5vw */
+            border-radius: 50%; /* 완전한 원형 유지 */
+            background-color: #FFFFFF;
+        }
+
+        @keyframes blink {
+		    0% { opacity: 1; }
+		    50% { opacity: 0.25; }
+		    100% { opacity: 1; }
+		}
+
+		.blink {
+		    animation: blink 1.5s infinite; /* 1초 주기로 무한 반복 */
+		}
+
+		@keyframes fadeIn {
+            0% { transform: translateY(50px); opacity: 0; }
+            50% { transform: translateY(25px); opacity: 0.5; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .fadeIn {
+            animation: fadeIn 2s;
+        }
+
+        #bubble {
+        	height: 40vh;
+        	position: fixed;
+        	top: 25vh;
+        	right: 7vw;
+        	
+        }
+
+        .ment {
+        	position: fixed;
+        	top: 35vh;
+        	right: 15vw;
+			color: #000000;
+			font-size: 5vh;
+			text-align: center;
+			font-style: italic;
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+	<h1 class="text">빠쓰를<br>찾아서...</h1>
+	<img id="thumbsUp" src="thumbsup.png" style="display: none;">
+	<img id="realOil" src="realoil.png" style="display: none;">
+	<img id="bubble" src="말풍선.png" style="display: none;">
+	<h1 class="ment" id="ment1" style="display: none;">물.. 물코기</h1>
+	<h1 class="ment" id="ment2" style="display: none;">나야, 들기름</h1>
+
+	<div class="pop">
+		<img id="popcat1" src="popcat1.png" style="display: none;">
+		<img id="baek1" src="baek1.png">
+		<img id="baek2" src="baek2.png" style="display: none;">
+		<img id="choi" src="choi.png" style="display: none;">
+		<img id="lee" src="lee.png" style="display: none;">
+		<img id="judgeBaek" src="judgebaek.png" style="display: none;">
+
+	</div>
+	<img class="fish" id="fish" src="fish.png" draggable="true">
+	<img class="oil" id="oil" src="oil.png" draggable="true">
+	<img class="bbas" id="bbas" src="bbas.png" draggable="true">
+
+	<img class="cloche" id="cloche1" src="cloche.png" data-item="fish">
+	<img class="cloche" id="cloche2" src="cloche.png" data-item="oil">
+	<img class="cloche" id="cloche3" src="cloche.png" data-item="bbas">
+
+	<button id="btn" class="button">도전!</button>
+	
+	<audio id="honestly" src="내가솔직히.mp3"></audio>
+	<audio id="swoosh" src="swoosh.mp3"></audio>
+	<audio id="tada" src="tada.mp3"></audio>
+
+	<audio id="itsme" src="나야들기름.mp3"></audio>
+    <audio id="fifish" src="물코기.mp3"></audio>
+
+    <audio id="itsbbas" src="빠쓰인정.mp3"></audio>
+    <audio id="admit" src="일단인정.mp3"></audio>
+
+    <audio id="nyam1" src="뭐여이게.mp3"></audio>
+    <audio id="nyam2" src="크게아.mp3"></audio>
+    <audio id="nyam3" src="엌.mp3"></audio>
+    <audio id="nyam4" src="으엄.mp3"></audio>
+    <audio id="nyam5" src="으엉.mp3"></audio>
+    <audio id="nyam6" src="므어.mp3"></audio>
+    <audio id="nyam7" src="므억.mp3"></audio>
+
+	<script>
+
+		// 페이지가 로드될 때 이벤트 리스너 제거
+		window.onload = function() {
+		    const baek1 = document.getElementById('baek1');
+		    baek1.removeEventListener('click', handleBaek1Click); // 이벤트 리스너 제거
+		    const bbas = document.getElementById('bbas');
+    		bbas.classList.add('blink'); // 깜빡이는 효과 추가
+		};
+
+		const cloches = document.querySelectorAll('.cloche');
+		const items = document.querySelectorAll('.fish, .oil, .bbas'); // 이미지들을 선택
+
+		function dropCloches() {
+		  const positions = [
+		    { x: 40, y: 10 }, // cloche1 위치
+		    { x: 20, y: 25 }, // cloche2 위치
+		    { x: 60, y: 25 }  // cloche3 위치
+		  ];
+
+		items.forEach(item => {
+		    setTimeout(() => {
+		        item.style.display = 'none'; // 1초 후 사라지게 설정
+		    }, 1000); // 1000ms = 1초
+		});
+
+		  cloches.forEach((cloche, index) => {
+		    const { x, y } = positions[index];
+		    setTimeout(() => {
+		      cloche.style.left = `${x}vw`;
+		      cloche.style.top = `${y}vh`;
+		      cloche.classList.add('visible'); // 요소를 보이게 함
+		      cloche.dataset.dropped = 'true'; // 섞기 시작 전 떨어졌는지 표시
+		    });
+		  });
+		}
+
+
+		function shuffleCloches() {
+		  const clocheElements = Array.from(cloches);
+
+		  // 모든 cloche가 떨어진 후에만 섞기 시작
+		  if (clocheElements.every(cloche => cloche.dataset.dropped === 'true')) {
+		    const positions = clocheElements.map(cloche => ({
+		      left: cloche.style.left,
+		      top: cloche.style.top
+		    }));
+
+		    clocheElements.forEach(cloche => {
+		      const randomIndex = Math.floor(Math.random() * positions.length);
+		      const { left, top } = positions.splice(randomIndex, 1)[0];
+
+		      cloche.style.transition = 'left 0.25s, top 0.25s'; // 이동 애니메이션
+		      cloche.style.left = left;
+		      cloche.style.top = top;
+
+		      swoosh.play();
+		    });	    
+		  }
+
+		}
+
+
+		document.getElementById('btn').addEventListener('click', () => {
+
+			btn.style.display = "none";
+
+		    // 클릭 이벤트 비활성화
+		    cloches.forEach(cloche => {
+		        cloche.removeEventListener('click', handleClocheClick);
+		    });
+
+		    dropCloches();
+
+		    // 떨어지는 애니메이션이 완료된 후 섞기 시작
+		    setTimeout(() => {
+		        const intervalId = setInterval(shuffleCloches, 250);
+
+		        // 5초 후에 섞기 종료
+		        setTimeout(() => {
+		            clearInterval(intervalId);
+
+		            // 섞기 종료 후 클릭 이벤트 다시 활성화
+		            cloches.forEach(cloche => {
+		                cloche.addEventListener('click', handleClocheClick);
+		            });
+		        }, 5000); // 5초 동안 섞기
+		    }, 1500); // 1초 후 섞기 시작
+		});
+
+
+
+		let clickCount = 0; // 클릭 횟수를 저장할 변수
+		let finalImage = ''; // 마지막에 바꿀 이미지 경로
+		let finalSound = '';
+		let isClocheProcessing = false; // cloche 작업 상태를 추적하는 플래그
+		let isItemPlaced = false; // 아이템이 놓였는지 여부 플래그
+
+        function handleClocheClick(event) {
+
+        	if (isClocheProcessing) return; // 이미 처리 중이면 중복 실행 방지
+   			isClocheProcessing = true; // 작업 시작
+   			isItemPlaced = false; // 새로운 아이템 드래그 전 상태로 초기화
+
+            const clickedCloche = event.currentTarget; // 클릭한 cloche
+            const correspondingItemId = clickedCloche.dataset.item; // 클릭한 cloche에 대응하는 이미지 ID
+            const correspondingItem = document.getElementById(correspondingItemId); // 대응하는 이미지
+
+			// 대응하는 아이템에 따라 바뀔 이미지 결정
+		    if (correspondingItemId === "fish") {
+		        finalImage = 'lee';
+		        finalSound = 'fifish';
+		    } else if (correspondingItemId === "oil") {
+		        finalImage = 'choi';
+		        finalSound = 'itsme';
+		    } else if (correspondingItemId === "bbas") {
+		        finalImage = 'judgeBaek';
+		        finalSound = 'itsbbas';
+		    }	
+
+            // 나머지 cloche 숨기기
+            cloches.forEach(cloche => {
+                if (cloche !== clickedCloche) {
+                    cloche.style.display = 'none'; // 나머지 cloche 숨기기
+                }
+            });
+
+            // 클릭한 cloche의 위치에 이미지 이동
+		    const { left, top } = clickedCloche.getBoundingClientRect(); // 클릭한 cloche의 위치 가져오기
+		    correspondingItem.style.position = 'absolute'; // position을 absolute로 설정
+		    correspondingItem.style.left = `${left}px`; // cloche의 x 좌표에 맞추기
+		    correspondingItem.style.top = `${top}px`; // cloche의 y 좌표에 맞추기
+		    // 클릭한 cloche 위치에 대응하는 이미지 보이기
+            correspondingItem.style.display = 'block'; // 이미지를 보이게 설정
+            clickedCloche.style.display = "none";
+            tada.play();
+
+            // 비동기 작업 후 플래그 해제
+		    setTimeout(() => {
+		        isClocheProcessing = false; // 작업 완료 후 플래그 해제
+		    }, 1000); // 작업이 끝난 후 1초 후 플래그 해제 (필요에 따라 조정)
+
+		    let isDragging = false;
+		    let offsetX = 0;
+		    let offsetY = 0;
+		   
+		    correspondingItem.addEventListener('click', (e) => {
+			  if (!isDragging) {
+			            isDragging = true;
+			            offsetX = e.clientX - correspondingItem.getBoundingClientRect().left; // 이미지의 현재 x 좌표와 마우스의 x 좌표 차이
+			            offsetY = e.clientY - correspondingItem.getBoundingClientRect().top; // 이미지의 현재 y 좌표와 마우스의 y 좌표 차이
+			            correspondingItem.style.cursor = 'grabbing'; // 커서 스타일 변경
+
+			            // 드래그 시작 시 이미지 위치 업데이트
+			            document.addEventListener('mousemove', mouseMoveHandler);
+			            document.addEventListener('mouseup', mouseUpHandler);
+			        }
+			    });
+
+		    let selectedReadySound = null; // 현재 재생 중인 사운드
+			let isSoundPlaying = false;    // 사운드 재생 상태 플래그
+
+		     const mouseMoveHandler = (e) => {
+		        if (isDragging) {
+		            const x = e.clientX - offsetX;
+		            const y = e.clientY - offsetY;
+		            correspondingItem.style.left = `${x}px`;
+		            correspondingItem.style.top = `${y}px`;
+
+		            // Check if item is near baek1
+		            if (isNear(correspondingItem, baek1, 350)) {
+
+		                baek1.src = 'baek2.png'; // 이미지 A를 C로 변경
+		                baek2.style.display = 'block'; // baek2 보이게 하기
+
+		                const baek1Rect = baek1.getBoundingClientRect(); // baek1의 위치 정보 가져오기
+			             // baek1 왼쪽에 있으면 좌우반전
+			            if (x < baek1Rect.left) {
+			                baek2.style.transform = 'scaleX(-1)';
+			            } else {
+			                baek2.style.transform = 'scaleX(1)';
+			            }
+
+		                if (!isSoundPlaying) { // 사운드가 재생 중이 아니면
+			                const readySounds = ['nyam1', 'nyam2'];
+			                const randomSound = Math.floor(Math.random() * readySounds.length);
+			                selectedReadySound = document.getElementById(readySounds[randomSound]);
+
+			                selectedReadySound.play().then(() => {
+			                    isSoundPlaying = true; // 사운드 재생 시작
+			                }).catch((error) => {
+			                    console.error('Audio play failed:', error);
+			                });
+
+			                // 사운드가 끝난 후 재생 상태 초기화
+			                selectedReadySound.onended = () => {
+			                    isSoundPlaying = false;
+			                };
+			            }
+			        } else {
+			            // 원래 상태로 복구
+			            baek1.src = 'baek1.png';
+			            baek2.style.display = 'none';
+
+			            if (selectedReadySound && !selectedReadySound.paused) {
+			                selectedReadySound.pause();
+			                selectedReadySound.currentTime = 0; // 재생 위치 초기화
+			                isSoundPlaying = false;
+			            }
+			        }
+			    }
+		    };
+
+
+
+		    let isNyam3Playing = false; // nyam3 재생 상태 플래그
+
+		    const mouseUpHandler = (e) => {
+			    isDragging = false;
+			    correspondingItem.style.cursor = 'grab'; // 드래그 종료 시 커서 스타일 복구
+
+			    // 드래그된 이미지의 현재 위치 확인
+			    const itemRect = correspondingItem.getBoundingClientRect();
+
+			    // 특정 영역의 기준 좌표 및 크기 설정 (뷰포트 비율로 설정)
+				const targetAreaLeft = 40 * (window.innerWidth / 100); // 40vw
+				const targetAreaTop = 50 * (window.innerHeight / 100); // 50vh
+				const targetAreaWidth = 10 * (window.innerWidth / 100); // 10vw
+				const targetAreaHeight = 10 * (window.innerHeight / 100); // 10vh
+
+			    // 드래그된 이미지의 위치 확인
+			    const itemLeft = itemRect.left; // 드래그된 이미지의 왼쪽 위치
+			    const itemTop = itemRect.top; // 드래그된 이미지의 위쪽 위치
+
+			    // 드래그된 이미지가 특정 영역에 놓였는지 확인
+			    const isInTargetArea = (
+			        itemLeft + itemRect.width >= targetAreaLeft && // 이미지의 오른쪽 끝이 타겟 영역의 왼쪽 경계보다 크거나 같아야 함
+			        itemLeft <= targetAreaLeft + targetAreaWidth && // 이미지의 왼쪽 끝이 타겟 영역의 오른쪽 경계보다 작거나 같아야 함
+			        itemTop + itemRect.height >= targetAreaTop && // 이미지의 아래쪽 끝이 타겟 영역의 위쪽 경계보다 크거나 같아야 함
+			        itemTop <= targetAreaTop + targetAreaHeight // 이미지의 위쪽 끝이 타겟 영역의 아래쪽 경계보다 작거나 같아야 함
+			    );
+			    
+			    // 마우스 위치와 이미지의 위치를 비교
+			    if (isInTargetArea) {
+			        correspondingItem.style.display = "none"; // 아예 보이지 않도록 설정
+			        baek2.style.display = 'none';
+			        baek1.style.display = 'block';
+			        nyam3.play();
+
+			        isItemPlaced = 'true';
+
+			        // 드래그 관련 이벤트 제거
+			        document.removeEventListener('mousemove', mouseMoveHandler); // mousemove 리스너 제거
+			        document.removeEventListener('mouseup', mouseUpHandler); // mouseup 리스너 제거	
+			    }
+
+    // 드래그 관련 이벤트 제거
+    document.removeEventListener('mousemove', mouseMoveHandler); // mousemove 리스너 제거
+    document.removeEventListener('mouseup', mouseUpHandler); // mouseup 리스너 제거
+
+    // 클릭 이벤트 등록 (드래그가 완료된 후)
+    baek1.addEventListener('click', handleBaek1Click);
+};
+
+
+		    // mousemove 및 mouseup 리스너 등록
+		    document.addEventListener('mousemove', mouseMoveHandler);
+		    document.addEventListener('mouseup', mouseUpHandler);
+
+		    function isNear(draggable, target, distance) {
+		        const draggableRect = draggable.getBoundingClientRect();
+		        const targetRect = target.getBoundingClientRect();
+
+		        const deltaX = draggableRect.left - targetRect.left;
+		        const deltaY = draggableRect.top - targetRect.top;
+
+		        return Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= distance;
+		    }
+
+        }
+
+		let currentScale = 1; // 초기 크기 비율 (100%)
+		let currentBottom = -8;
+		let currentBg = 95;
+
+		// baek1을 클릭했을 때 실행될 함수
+		function handleBaek1Click() {
+
+			if (!isItemPlaced) return; // 아이템이 놓이기 전까지 무시
+
+		    if (clickCount < 10) {
+		        // 잠깐 baek2로 변경 후 다시 baek1으로 복구
+		        baek1.src = 'baek2.png'; 
+
+		        // 300ms 후 다시 baek1로 복구
+		        setTimeout(() => {
+		            baek1.src = 'baek1.png';
+		        }, 100);
+
+		        clickCount++; // 클릭 횟수 증가
+
+		        // 크기 비율을 5%씩 증가
+		        currentScale += 0.2; // 5% 증가
+		        currentBottom += 0.2; // 5% 증가
+		        currentBg -= 10;
+		        baek1.style.transform = `scale(${currentScale})`; // 크기 조정
+		        baek2.style.transform = `scale(${currentScale})`; // baek2에도 동일한 크기 적용
+		        baek1.style.bottom =  `${currentBottom}vh`;
+		        baek2.style.bottom =  `${currentBottom}vh`;
+		        document.body.style.background = `hsl(0, 0%, ${currentBg})`;
+		        let selectedEatingSound = null; // 현재 재생 중인 사운드
+				let isSoundPlaying2 = false;    // 사운드 재생 상태 플래그
+
+		        if (!isSoundPlaying2) { // 사운드가 재생 중이 아니면
+			                const eatingSounds = ['nyam4', 'nyam5', 'nyam6', 'nyam7'];
+			                const randomSound = Math.floor(Math.random() * eatingSounds.length);
+			                selectedEatingSound = document.getElementById(eatingSounds[randomSound]);
+
+			                selectedEatingSound.play().then(() => {
+			                    isSoundPlaying2 = true; // 사운드 재생 시작
+			                }).catch((error) => {
+			                    console.error('Audio play failed:', error);
+			                });
+
+			                // 사운드가 끝난 후 재생 상태 초기화
+			                selectedEatingSound.onended = () => {
+			                    isSoundPlaying2 = false;
+			                };
+			            }
+			        else {
+			                selectedEatingSound.pause();
+			                selectedEatingSound.currentTime = 0; // 재생 위치 초기화
+			                isSoundPlaying2 = false;
+			            
+			        }
+		    } 
+		    
+		    if (clickCount === 10) {
+		    	const audioElements = document.querySelectorAll('audio'); // 모든 audio 요소 선택
+				    audioElements.forEach(audio => {
+				        audio.muted = true; // 각 audio 요소를 뮤트
+				    });
+				const soundElement = document.getElementById(finalSound);
+	        	soundElement.muted = false; 
+	        	setTimeout(() => {
+                    soundElement.play(); // s
+                }, 800)
+
+                const randomColor = Math.floor(Math.random() * 360); // HSL에서 Hue 값은 0에서 360 사이
+                    document.documentElement.style.backgroundColor = `hsl(${randomColor}, 100%, 15%)`;
+                    document.body.style.backgroundColor = `hsl(${randomColor}, 100%, 15%)`;
+	       
+		        baek1.style.display = "none";
+		        baek1.removeEventListener('click', handleBaek1Click); // 더 이상 클릭되지 않도록 리스너 제거
+
+		        const imgElement = document.getElementById(finalImage);
+		        imgElement.classList.add('fadeIn'); // bounce 효과 클래스 추가
+	        	imgElement.style.display = 'block'; // 이미지를 보이게 함
+	        	imgElement.style.position = 'fixed';
+	        	imgElement.style.height = '72vh';
+	        	imgElement.style.bottom = '-4vh'
+	        	imgElement.style.left = '29vw'
+	        	
+
+		        if (imgElement.id === "judgeBaek") {
+		        	explodeThumbsUp();
+		        } else if (imgElement.id === "lee") {
+		        	explodeThing("fish");
+		        	bubble.style.display = "block";
+		        	ment1.style.display = "block";
+		        	bubble.classList.add('fadeIn');
+		        	ment1.classList.add('fadeIn');
+		        	
+		        } else {
+		        	explodeThing("realOil");
+		        	bubble.style.display = "block";
+		        	ment2.style.display = "block";
+		        	bubble.classList.add('fadeIn');
+		        	ment2.classList.add('fadeIn');
+		        }
+		    }
+		}
+
+		cloches.forEach(cloche => {
+            cloche.addEventListener('click', handleClocheClick);
+        });	
+
+        // baek1에 클릭 이벤트 리스너 추가
+		baek1.addEventListener('click', handleBaek1Click);
+
+
+		function explodeThumbsUp() {
+                const thumbsUp = document.getElementById('thumbsUp');
+                const numberOfThumbs = 30; // 흩뿌릴 thumbs up 이미지 수
+
+                for (let i = 0; i < numberOfThumbs; i++) {
+                    const newThumb = thumbsUp.cloneNode(); // 기존 이미지를 복제
+                    document.body.appendChild(newThumb); // 복제된 이미지를 body에 추가
+
+                    const randomSize = Math.floor(Math.random() *20) + 1; // 20 ~ 100px 사이의 크기
+                    newThumb.style.height = `${randomSize}vh`;
+
+                    newThumb.style.position = 'absolute'; // z-index가 작동하도록 position 설정
+                    newThumb.style.zIndex = 1; // z-index 설정
+        
+
+                    // 랜덤 위치 설정
+                    newThumb.style.left = Math.random() * window.innerWidth + 'px';
+                    newThumb.style.top = Math.random() * window.innerHeight + 'px';
+                    newThumb.style.display = 'block'; // 이미지 표시
+
+                    // setTimeout을 사용하여 애니메이션 적용에 약간의 지연 추가
+                    setTimeout(() => {
+                        // 애니메이션 스타일 설정
+                        newThumb.style.transition = 'transform 4s ease'; /*, opacity 3s ease*/
+                        newThumb.style.transform = `translateY(-120px)`;
+                        /*newThumb.style.opacity = 0; // 애니메이션 후 투명하게 설정*/
+                    }, 200);
+
+                    // 애니메이션 종료 후 이미지 제거
+                    /*setTimeout(() => {
+                        newThumb.remove();
+                    }, 1200);*/
+                }
+            }
+
+            function explodeThing(something) {
+            const thing = document.getElementById(something);
+                        const numberOfThings = 20; // 흩뿌릴 thumbs up 이미지 수
+
+                        for (let i = 0; i < numberOfThings; i++) {
+                            const newThing = thing.cloneNode(); // 기존 이미지를 복제
+                            document.body.appendChild(newThing); // 복제된 이미지를 body에 추가
+
+                            const randomSize = Math.floor(Math.random() * 25) +1; // 20 ~ 100px 사이의 크기
+                            newThing.style.height = `${randomSize}vh`;
+
+                            newThing.style.position = 'absolute'; // z-index가 작동하도록 position 설정
+                            newThing.style.zIndex = 1; // z-index 설정
+                
+
+                            // 랜덤 위치 설정
+                            newThing.style.left = Math.random() * window.innerWidth + 'px';
+                            newThing.style.top = Math.random() * window.innerHeight + 'px';
+                            newThing.style.display = 'block'; // 이미지 표시
+
+                            // setTimeout을 사용하여 애니메이션 적용에 약간의 지연 추가
+                            setTimeout(() => {
+                                // 애니메이션 스타일 설정
+                                newThing.style.transition = 'transform 4s ease, opacity 3s ease';
+                                newThing.style.transform = `translateY(120px)`;
+                                newThing.style.opacity = 0; // 애니메이션 후 투명하게 설정
+                            }, 200);
+
+                            // 애니메이션 종료 후 이미지 제거
+                            setTimeout(() => {
+                                newThing.remove();
+                            }, 1200);
+                        }
+                    }
+
+	
+
+
+			
+
+	    
+	</script>
+</body>
+</html>
